@@ -10,6 +10,44 @@ pub mod models {
     use openapi_lambda::models::chrono;
     #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
     #[serde(crate = "openapi_lambda::__private::serde")]
+    pub enum CreateBarTypeArrayParamItem {
+        #[serde(rename = "a")]
+        A,
+        B,
+        #[serde(rename = "1")]
+        __1,
+        #[serde(rename = "")]
+        EmptyString,
+    }
+    impl CreateBarTypeArrayParamItem {
+        fn as_str(&self) -> &'static str {
+            match self {
+                Self::A => "a",
+                Self::B => "B",
+                Self::__1 => "1",
+                Self::EmptyString => "",
+            }
+        }
+    }
+    impl std::fmt::Display for CreateBarTypeArrayParamItem {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", self.as_str())
+        }
+    }
+    impl std::str::FromStr for CreateBarTypeArrayParamItem {
+        type Err = anyhow::Error;
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            match s {
+                "a" => Ok(Self::A),
+                "B" => Ok(Self::B),
+                "1" => Ok(Self::__1),
+                "" => Ok(Self::EmptyString),
+                _ => Err(anyhow!("invalid enum variant `{}`", s)),
+            }
+        }
+    }
+    #[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
+    #[serde(crate = "openapi_lambda::__private::serde")]
     pub enum CreateBarTypeParam {
         #[serde(rename = "a")]
         A,
@@ -230,6 +268,7 @@ pub mod bar {
         #[doc = concat!("* `", stringify!(bar_id), "` - ", "")]
         #[doc = concat!("* `", stringify!(sort_by), "` - ", "")]
         #[doc = concat!("* `", stringify!(r#type), "` - ", "Bar type")]
+        #[doc = concat!("* `", stringify!(type_array), "` - ", "Bar array type")]
         #[doc = concat!("* `", stringify!(x_bar), "` - ", "")]
         #[doc = concat!("* `request_body` - ", "Request body")]
         /// * `headers` - HTTP request headers
@@ -244,6 +283,7 @@ pub mod bar {
             bar_id: crate::types::BarId,
             sort_by: Option<crate::models::SortBy>,
             r#type: Option<crate::models::CreateBarTypeParam>,
+            type_array: Option<Vec<crate::models::CreateBarTypeArrayParamItem>>,
             x_bar: Option<String>,
             request_body: Vec<u8>,
             headers: HeaderMap,
@@ -360,6 +400,31 @@ pub mod bar {
             Err(err) => return api.respond_to_event_error(err).await,
         };
         #[allow(clippy::bind_instead_of_map)]
+        let type_array = match request
+            .multi_value_query_string_parameters
+            .all("type-array")
+            .map(|param_values| {
+                param_values
+                    .iter()
+                    .copied()
+                    .map(|p| {
+                        p.parse::<crate::models::CreateBarTypeArrayParamItem>()
+                            .map_err(|err| {
+                                EventError::InvalidRequestQueryParam {
+                                    param_name: std::borrow::Cow::Borrowed("type-array"),
+                                    source: Some(err.into()),
+                                    backtrace: Backtrace::new(),
+                                }
+                            })
+                    })
+                    .collect::<Result<Vec<_>, _>>()
+            })
+            .transpose()
+        {
+            Ok(param_value) => param_value,
+            Err(err) => return api.respond_to_event_error(err).await,
+        };
+        #[allow(clippy::bind_instead_of_map)]
         let x_bar = match request
             .headers
             .get("x-bar")
@@ -447,6 +512,9 @@ pub mod bar {
         log::trace!(concat!("Request parameter `", "barId", "`: {:#?}"), bar_id);
         log::trace!(concat!("Request parameter `", "sortBy", "`: {:#?}"), sort_by);
         log::trace!(concat!("Request parameter `", "type", "`: {:#?}"), r#type);
+        log::trace!(
+            concat!("Request parameter `", "type-array", "`: {:#?}"), type_array
+        );
         log::trace!(concat!("Request parameter `", "x-bar", "`: {:#?}"), x_bar);
         log::trace!("Request body: {request_body:#?}");
         log::trace!("Authenticating request");
@@ -470,6 +538,7 @@ pub mod bar {
                             bar_id,
                             sort_by,
                             r#type,
+                            type_array,
                             x_bar,
                             request_body,
                             headers,

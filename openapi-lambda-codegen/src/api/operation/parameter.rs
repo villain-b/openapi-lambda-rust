@@ -67,7 +67,15 @@ impl CodeGenerator {
               })),
             ..
           }) => match item_ref_or_schema {
-            ReferenceOr::Reference { .. } => Some(required_type.clone()),
+            ReferenceOr::Reference { .. } => Some(
+              self
+                .inline_ref_or_schema(
+                  item_ref_or_schema,
+                  components_schemas,
+                  GeneratedModels::Done(generated_models),
+                )
+                .0,
+            ),
             ReferenceOr::Item(item_schema) if !is_plain_string_schema(item_schema) => Some(
               self
                 .inline_ref_or_schema(

@@ -68,6 +68,14 @@ paths:
           schema:
             $ref: "#/components/schemas/CreateBarTypeParam"
           style: form
+        - in: query
+          name: type-array
+          description: Bar array type
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CreateBarTypeArrayParamItem"
+          style: form
         - in: header
           name: x-bar
           schema:
@@ -128,6 +136,13 @@ components:
       required:
         - name
     CreateBarTypeParam:
+      type: string
+      enum:
+        - a
+        - B
+        - "1"
+        - ""
+    CreateBarTypeArrayParamItem:
       type: string
       enum:
         - a
