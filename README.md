@@ -484,7 +484,3 @@ Schemas utilizing `anyOf` or `not` are currently not supported.
 ### Responses
 
 Responses must specify individual HTTP status codes. Status code ranges are currently not supported.
-
-## Sponsorship
-
-This project is sponsored by [Unflakable](https://unflakable.com).
