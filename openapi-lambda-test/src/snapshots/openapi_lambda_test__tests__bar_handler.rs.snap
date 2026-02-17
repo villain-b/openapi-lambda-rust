@@ -44,6 +44,7 @@ impl Api for BarApiHandler {
     bar_id: crate::types::BarId,
     sort_by: Option<crate::models::SortBy>,
     r#type: Option<crate::models::CreateBarTypeParam>,
+    type_array: Option<Vec<crate::models::CreateBarTypeArrayParamItem>>,
     x_bar: Option<String>,
     request_body: Vec<u8>,
     headers: HeaderMap,

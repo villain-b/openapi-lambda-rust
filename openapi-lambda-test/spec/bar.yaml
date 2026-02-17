@@ -22,6 +22,19 @@ path:
             - B
             - "1"
             - ""
+      - name: type-array
+        in: query
+        description: Bar array type
+        schema:
+          type: array
+          items:
+            type: string
+            # Inline enum should generate a new model.
+            enum:
+              - a
+              - B
+              - "1"
+              - ""
       - name: x-bar
         in: header
         schema:
