@@ -65,6 +65,7 @@ jobs:
         with:
           toolchain: ${{ matrix.rust_os.rust }}
           components: rustfmt
+          targets: aarch64-unknown-linux-gnu
 
       - name: Install AWS SAM CLI
         uses: aws-actions/setup-sam@v2
