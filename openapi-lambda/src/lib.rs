@@ -34,16 +34,13 @@ pub type HttpResponse = Response<Body>;
 /// Serialize an [`HttpResponse`] as an [`ApiGatewayProxyResponse`].
 pub fn http_response_to_apigw(response: HttpResponse) -> ApiGatewayProxyResponse {
   let (parts, body) = response.into_parts();
-  let is_base64_encoded = match body {
-    Body::Binary(_) => true,
-    _ => false,
-  };
+  let is_base64_encoded = matches!(body, Body::Binary(_));
   ApiGatewayProxyResponse {
     status_code: parts.status.as_u16() as i64,
     headers: Default::default(),
     multi_value_headers: parts.headers,
     body: Some(body),
-    is_base64_encoded: is_base64_encoded,
+    is_base64_encoded,
   }
 }
 
